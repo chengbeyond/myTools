@@ -3,13 +3,14 @@ from tkinter import filedialog, messagebox
 import subprocess
 import os
 
+
 class Toplevel1:
     def __init__(self, top=None):
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#ececec' # Closest X11 color: 'gray92'
+        _compcolor = '#d9d9d9'  # X11 color: 'gray85'
+        _ana1color = '#d9d9d9'  # X11 color: 'gray85'
+        _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
         top.geometry("600x109")
         top.title("提取音频")
@@ -108,6 +109,7 @@ class Toplevel1:
             messagebox.showerror("Error", f"An error occurred: {e}")
             self.Label2.configure(text="Error")
 
+
 def center_window(window, width, height):
     """Center the window on the screen."""
     screen_width = window.winfo_screenwidth()
@@ -116,12 +118,14 @@ def center_window(window, width, height):
     y = (screen_height // 2) - (height // 2)
     window.geometry(f'{width}x{height}+{x}+{y}')
 
+
 def vp_start_gui():
     global val, w, root
     root = tk.Tk()
     top = Toplevel1(root)
     center_window(root, 600, 109)
     root.mainloop()
+
 
 if __name__ == '__main__':
     vp_start_gui()
