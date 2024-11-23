@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 import subprocess
 import threading
+import os
 
 try:
     import ttk
@@ -23,7 +24,7 @@ def select_video_file():
 
 
 def select_audio_file():
-    file_path = filedialog.askopenfilename(filetypes=[("Audio files", "*.wav *.mp3")])
+    file_path = filedialog.askopenfilename(filetypes=[("Audio files", "*.wav *.mp3 *.mp4")])
     if file_path:
         app.Text2.delete(1.0, tk.END)
         app.Text2.insert(tk.END, file_path)
@@ -37,7 +38,12 @@ def merge_video_audio():
 
     app.Button3.config(text="合并中...")
 
-    command = ['ffmpeg', '-i', video_path, '-i', audio_path, '-vcodec', 'copy', '-acodec', 'copy', 'output.mp4']
+    # 获取视频文件所在的目录
+    output_dir = os.path.dirname(video_path)
+    # 构建输出文件的完整路径
+    output_path = os.path.join(output_dir, "output.mp4")
+
+    command = ['ffmpeg', '-i', video_path, '-i', audio_path, '-vcodec', 'copy', '-acodec', 'copy', output_path]
 
     def run_command():
         try:
