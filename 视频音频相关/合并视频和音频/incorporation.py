@@ -51,12 +51,20 @@ def merge_video_audio():
     thread = threading.Thread(target=run_command)
     thread.start()
 
+def center_window(window, width, height):
+    """Center the window on the screen."""
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
 
 def vp_start_gui():
     global val, w, root, app
     root = tk.Tk()
     app = Toplevel1(root)
     incorporation_support.init(root, app)
+    center_window(root, 600, 144)
     root.mainloop()
 
 
@@ -87,7 +95,7 @@ class Toplevel1:
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
         top.geometry("600x144+579+156")
-        top.title("New Toplevel")
+        top.title("incorporation")
         top.configure(background="#d9d9d9")
 
         self.Text1 = tk.Text(top)
