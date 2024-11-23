@@ -42,7 +42,7 @@ class Toplevel1:
         self.Label1.configure(foreground="#000000")
         self.Label1.configure(highlightbackground="#d9d9d9")
         self.Label1.configure(highlightcolor="black")
-        self.Label1.configure(text='''old path''')
+        self.Label1.configure(text='''路径''')
 
         self.Button1 = tk.Button(top)
         self.Button1.place(relx=0.133, rely=0.459, height=28, width=100)
