@@ -9,6 +9,7 @@ bin-release/
 .godot
 .idea
 .tmp
+.tcl
 
 # Executables
 *.swf

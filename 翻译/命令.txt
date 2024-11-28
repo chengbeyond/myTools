@@ -1,0 +1,4 @@
+python -m nuitka --windows-icon-from-ico=sync.ico  .\fanyi.py
+
+
+python -m nuitka --follow-imports --windows-console-mode=disable --show-progress --plugin-enable=tk-inter --windows-icon-from-ico=sync.ico  .\fanyi.py
