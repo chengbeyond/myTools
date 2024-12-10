@@ -206,8 +206,8 @@ class Toplevel1:
 
 if __name__ == '__main__':
     # https://linux.do/t/topic/111737   https://linux.do/t/topic/175132
-    url = 'https://api.deeplx.org/2G9KXFuolVgvhaSTPPPpdMdDYS8M_Fm3tBVYOmdozSE/translate'
-    # url = 'https://deeplx.doi9.top/translate'
+    # url = 'https://api.deeplx.org/2G9KXFuolVgvhaSTPPPpdMdDYS8M_Fm3tBVYOmdozSE/translate'
+    url = 'https://deeplx.doi9.top/translate'
     # url = "https://deeplx.niubipro.com/translate"
     # url = "http://localhost:1188/translate"
     vp_start_gui()
