@@ -6,6 +6,7 @@ import json
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import threading
 import configparser
+import subprocess
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -69,6 +70,19 @@ def process_directory(input_dir, output_dir, progress_var, total_files):
             root.update_idletasks()  # 更新UI以显示进度
 
     messagebox.showinfo("完成", "翻译完成")
+    # 打开翻译好的目录
+    open_folder(output_dir)
+
+def open_folder(folder_path):
+    try:
+        if os.name == 'nt':  # Windows
+            os.startfile(folder_path)
+        elif os.name == 'posix':  # Linux 或 macOS
+            subprocess.Popen(['open', folder_path])
+        else:
+            messagebox.showwarning("警告", "无法在当前操作系统上打开文件夹")
+    except Exception as e:
+        messagebox.showerror("错误", f"打开文件夹时出错: {e}")
 
 def select_input_directory():
     directory = filedialog.askdirectory()
@@ -100,7 +114,7 @@ def start_translation():
     save_config(input_dir, output_dir)
 
     # 修改按钮文本为“翻译中”
-    translate_button.config(text="翻译中", state=tk.DISABLED)
+    translate_button.config(text="正在翻译", state=tk.DISABLED)
 
     # 创建进度变量
     progress_var = tk.StringVar()
