@@ -104,7 +104,7 @@ def start_translation():
 
     # 创建进度变量
     progress_var = tk.StringVar()
-    progress_var.set("翻译进度: 0/0 文件完成")
+    progress_var.set("翻译准备中...")
     progress_label = tk.Label(root, textvariable=progress_var)
     progress_label.grid(row=2, column=1, padx=(10, 0), pady=20, sticky=tk.W)  # 紧靠开始翻译按钮后面10个像素的地方
 
