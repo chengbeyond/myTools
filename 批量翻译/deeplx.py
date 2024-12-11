@@ -29,7 +29,7 @@ def load_config():
             return config['Paths'].get('input_dir', ''), config['Paths'].get('output_dir', '')
     return '', ''
 
-def translate_srt_file(input_file_path, output_dir):
+def translate_text_file(input_file_path, output_dir):
     with open(input_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
 
@@ -48,7 +48,8 @@ def translate_srt_file(input_file_path, output_dir):
 
     # 获取输入文件名并构造输出文件路径
     input_filename = os.path.basename(input_file_path)
-    output_file_path = os.path.join(output_dir, input_filename.replace('.srt', '_translated.srt'))
+    file_extension = os.path.splitext(input_filename)[1]
+    output_file_path = os.path.join(output_dir, f"{os.path.splitext(input_filename)[0]}_translated{file_extension}")
 
     with open(output_file_path, 'w', encoding='utf-8') as file:
         file.write(data_dict.get("data"))
@@ -62,9 +63,9 @@ def process_directory(input_dir, output_dir, progress_var, total_files):
 
     translated_count = 0
     for filename in os.listdir(input_dir):
-        if filename.endswith('.srt'):
+        if filename.endswith(('.srt', '.txt')):  # 添加更多的文件类型
             input_file_path = os.path.join(input_dir, filename)
-            translated_count += translate_srt_file(input_file_path, output_dir)
+            translated_count += translate_text_file(input_file_path, output_dir)
             remaining_files = total_files - translated_count
             progress_var.set(f"翻译进度: {translated_count}/{total_files} 文件完成 (剩余: {remaining_files})")
             root.update_idletasks()  # 更新UI以显示进度
@@ -105,9 +106,9 @@ def start_translation():
         return
 
     # 计算总文件数
-    total_files = sum(1 for filename in os.listdir(input_dir) if filename.endswith('.srt'))
+    total_files = sum(1 for filename in os.listdir(input_dir) if filename.endswith(('.srt', '.txt')))  # 添加更多的文件类型
     if total_files == 0:
-        messagebox.showwarning("警告", "输入目录中没有 .srt 文件")
+        messagebox.showwarning("警告", "输入目录中没有可翻译的文件")
         return
 
     # 保存配置
@@ -138,7 +139,7 @@ def start_translation():
 
 # 创建主窗口
 root = tk.Tk()
-root.title("SRT 文件翻译工具")
+root.title("文本文件翻译工具")
 
 # 设置窗口大小
 window_width = 550
