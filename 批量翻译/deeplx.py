@@ -29,7 +29,7 @@ def load_config():
             return config['Paths'].get('input_dir', ''), config['Paths'].get('output_dir', '')
     return '', ''
 
-def translate_srt_file(input_file_path, output_dir):
+def translate_text_file(input_file_path, output_dir):
     with open(input_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
 
@@ -48,7 +48,7 @@ def translate_srt_file(input_file_path, output_dir):
 
     # 获取输入文件名并构造输出文件路径
     input_filename = os.path.basename(input_file_path)
-    output_file_path = os.path.join(output_dir, input_filename.replace('.srt', '_translated.srt'))
+    output_file_path = os.path.join(output_dir, input_filename.replace('.', '_translated.'))
 
     with open(output_file_path, 'w', encoding='utf-8') as file:
         file.write(data_dict.get("data"))
@@ -62,9 +62,9 @@ def process_directory(input_dir, output_dir, progress_var, total_files):
 
     translated_count = 0
     for filename in os.listdir(input_dir):
-        if filename.endswith('.srt'):
+        if filename.endswith(('.txt', '.srt', '.docx', '.md')):  # 添加更多文本文件扩展名
             input_file_path = os.path.join(input_dir, filename)
-            translated_count += translate_srt_file(input_file_path, output_dir)
+            translated_count += translate_text_file(input_file_path, output_dir)
             remaining_files = total_files - translated_count
             progress_var.set(f"翻译进度: {translated_count}/{total_files} 文件完成 (剩余: {remaining_files})")
             root.update_idletasks()  # 更新UI以显示进度
