@@ -10,6 +10,8 @@ bin-release/
 .idea
 .tmp
 .tcl
+.build
+.dist
 
 
 # Executables
