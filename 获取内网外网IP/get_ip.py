@@ -20,9 +20,10 @@ def get_local_ip():
 def get_public_ip():
     try:
         # 获取外网 IP 地址
-        response = requests.get("https://api.ipify.org", timeout=5)
+        response = requests.get("https://ipinfo.io/json", timeout=5)
         if response.status_code == 200:
-            return response.text
+            data = response.json()
+            return data.get('ip', "无法获取")
         else:
             return "无法获取"
     except Exception as e:
@@ -37,10 +38,10 @@ def start_ip_fetch():
     is_fetching = True
     local_ip_box.config(state=tk.NORMAL)
     public_ip_box.config(state=tk.NORMAL)
-    local_ip_box.delete(0, tk.END)
-    public_ip_box.delete(0, tk.END)
-    local_ip_box.insert(0, "获取中...")
-    public_ip_box.insert(0, "获取中...")
+    local_ip_box.delete('1.0', tk.END)
+    public_ip_box.delete('1.0', tk.END)
+    local_ip_box.insert(tk.END, "获取中...")
+    public_ip_box.insert(tk.END, "获取中...")
     local_ip_box.config(state=tk.DISABLED)
     public_ip_box.config(state=tk.DISABLED)
 
@@ -53,15 +54,15 @@ def fetch_ip():
     # 获取内网 IP 地址
     local_ip = get_local_ip()
     local_ip_box.config(state=tk.NORMAL)
-    local_ip_box.delete(0, tk.END)
-    local_ip_box.insert(0, local_ip)
+    local_ip_box.delete('1.0', tk.END)
+    local_ip_box.insert(tk.END, local_ip)
     local_ip_box.config(state=tk.DISABLED)
 
     # 获取外网 IP 地址
     public_ip = get_public_ip()
     public_ip_box.config(state=tk.NORMAL)
-    public_ip_box.delete(0, tk.END)
-    public_ip_box.insert(0, public_ip)
+    public_ip_box.delete('1.0', tk.END)
+    public_ip_box.insert(tk.END, public_ip)
     public_ip_box.config(state=tk.DISABLED)
 
     # 任务完成
@@ -79,6 +80,32 @@ def center_window(window, width, height):
     # 设置窗口位置
     window.geometry(f'{width}x{height}+{x}+{y}')
 
+def enable_copy(event):
+    event.widget.config(state=tk.NORMAL)
+    try:
+        event.widget.tag_add(tk.SEL, "1.0", tk.END)
+        event.widget.mark_set(tk.INSERT, "1.0")
+        event.widget.clipboard_clear()
+        event.widget.clipboard_append(event.widget.selection_get())
+    except tk.TclError:
+        pass
+    finally:
+        event.widget.config(state=tk.DISABLED)
+
+def copy_text(widget):
+    widget.config(state=tk.NORMAL)
+    try:
+        widget.clipboard_clear()
+        widget.clipboard_append(widget.selection_get())
+    except tk.TclError:
+        pass
+    finally:
+        widget.config(state=tk.DISABLED)
+
+def show_context_menu(event):
+    context_menu.entryconfigure("复制", command=lambda: copy_text(event.widget))
+    context_menu.post(event.x_root, event.y_root)
+
 # 创建主窗口
 root = tk.Tk()
 root.title("IP 地址获取器")
@@ -90,14 +117,22 @@ window_height = 140
 # 将窗口居中
 center_window(root, window_width, window_height)
 
+# 创建上下文菜单
+context_menu = tk.Menu(root, tearoff=0)
+context_menu.add_command(label="复制", command=None)
+
 # 添加文本标签和输入框
 tk.Label(root, text="内网地址：").place(x=10, y=10)
-local_ip_box = tk.Entry(root, width=25, state=tk.DISABLED)
+local_ip_box = tk.Text(root, width=25, height=1, state=tk.DISABLED)
 local_ip_box.place(x=100, y=10)
+local_ip_box.bind("<Control-c>", enable_copy)
+local_ip_box.bind("<Button-3>", show_context_menu)
 
 tk.Label(root, text="外网地址：").place(x=10, y=50)
-public_ip_box = tk.Entry(root, width=25, state=tk.DISABLED)
+public_ip_box = tk.Text(root, width=25, height=1, state=tk.DISABLED)
 public_ip_box.place(x=100, y=50)
+public_ip_box.bind("<Control-c>", enable_copy)
+public_ip_box.bind("<Button-3>", show_context_menu)
 
 # 添加按钮
 fetch_button = tk.Button(root, text="获取 IP 地址", width=15, command=start_ip_fetch)
