@@ -33,7 +33,8 @@ def translate_text_file(input_file_path, output_dir):
     with open(input_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
 
-    url = "https://deeplx.doi9.top/translate"
+    # url = "https://deeplx.doi9.top/translate"
+    url = "https://api.deeplx.org/2G9KXFuolVgvhaSTPPPpdMdDYS8M_Fm3tBVYOmdozSE/translate"
     payload = json.dumps({
         "text": content,
         "source_lang": "auto",

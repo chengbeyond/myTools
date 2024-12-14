@@ -32,8 +32,8 @@ def destroy_window():
     top_level = None
 
 if __name__ == '__main__':
-    import fanyi
-    fanyi.vp_start_gui()
+    import baidu
+    baidu.vp_start_gui()
 
 
 
