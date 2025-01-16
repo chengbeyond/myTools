@@ -2,14 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run Python",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "type": "au3",
             "request": "launch",
-            "name": "Run AutoIt3 script",
+            "name": "Run AutoIt3",
             "script": "${file}",
             "cwd": "${fileDirname}",
             "executable": "G:\\autoit-cn-master\\AutoIt3.exe",  // 确保这是你的 AutoIt 安装路径
             "arguments": [],
-            "console": "integratedTerminal"  // 使用集成终端输出日志
+            "console": "integratedTerminal"
         }
     ]
 }
