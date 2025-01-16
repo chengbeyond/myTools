@@ -13,7 +13,7 @@ Global Const $TEST_URL_2 = "https://www.google.com"
 
 ; 设置GUI窗口大小和位置
 $GUI_Width = 400
-$GUI_Height = 250
+$GUI_Height = 210
 $GUI_X = (@DesktopWidth - $GUI_Width) / 2
 $GUI_Y = (@DesktopHeight - $GUI_Height) / 2
 
@@ -56,6 +56,7 @@ While 1
             _Main()
 
             $g_bRunning = False
+            GUICtrlSetData($ButtonStart, "开始测试")
     EndSwitch
     Sleep(10)
 WEnd
@@ -84,7 +85,6 @@ Func _Main()
         EndIf
         $g_bFixing = False
     EndIf
-    GUICtrlSetData($ButtonStart, "开始测试")
 EndFunc
 
 Func _IsNetworkConnected()
@@ -100,22 +100,12 @@ EndFunc
 Func _FixNetwork()
     GUICtrlSetData($Progress, 0) ; 重置进度条
     ; 执行网络重置命令
-    For $i = 1 To 4
-        Local $cmd = ""
-        Switch $i
-            Case 1
-                $cmd = "netsh winsock reset"
-            Case 2
-                $cmd = "netsh int ip reset"
-            Case 3
-                $cmd = "ipconfig /release"
-            Case 4
-                $cmd = "ipconfig /renew"
-        EndSwitch
-
+    Local $commands = ["netsh winsock reset", "netsh int ip reset", "ipconfig /release", "ipconfig /renew"]
+    For $i = 0 To UBound($commands) - 1
+        Local $cmd = $commands[$i]
         GUICtrlSetData($LabelStatus, "正在执行命令: " & $cmd)
         RunWait(@ComSpec & " /c " & $cmd, "", @SW_HIDE)
-        GUICtrlSetData($Progress, $i * 25) ; 更新进度条
+        GUICtrlSetData($Progress, ($i + 1) * 25) ; 更新进度条
         Sleep(1000) ; 添加延迟以便用户可以看到进度
     Next
     Return True
@@ -153,46 +143,16 @@ Func _CheckProxyAndWarn()
 EndFunc
 
 Func _GetInetErrorDescription($iError)
-    Switch $iError
-        Case 1
-            Return "无法连接到服务器。"
-        Case 2
-            Return "无法打开文件。"
-        Case 3
-            Return "无法写入文件。"
-        Case 4
-            Return "超时。"
-        Case 5
-            Return "无效的 URL。"
-        Case 6
-            Return "无法找到主机。"
-        Case 7
-            Return "无法连接到服务器。"
-        Case 8
-            Return "无法读取数据。"
-        Case 9
-            Return "无法写入数据。"
-        Case 10
-            Return "无法打开文件。"
-        Case 11
-            Return "无法写入文件。"
-        Case 12
-            Return "无法读取数据。"
-        Case 13
-            Return "无法写入数据。"
-        Case 14
-            Return "无法连接到服务器。"
-        Case 15
-            Return "无法读取数据。"
-        Case 16
-            Return "无法写入数据。"
-        Case 17
-            Return "无法连接到服务器。"
-        Case 18
-            Return "无法读取数据。"
-        Case 19
-            Return "无法写入数据。"
-        Case Else
-            Return "未知错误 (" & $iError & ")"
-    EndSwitch
+    Local $errors = [
+        "无法连接到服务器。",
+        "无法打开文件。",
+        "无法写入文件。",
+        "超时。",
+        "无效的 URL。",
+        "无法找到主机。"
+    ]
+    If $iError <= 0 Or $iError > UBound($errors) Then
+        Return "未知错误 (" & $iError & ")"
+    EndIf
+    Return $errors[$iError - 1]
 EndFunc
