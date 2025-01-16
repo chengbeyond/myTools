@@ -13,7 +13,7 @@ Global Const $TEST_URL_2 = "https://www.google.com"
 
 ; 设置GUI窗口大小和位置
 $GUI_Width = 400
-$GUI_Height = 200
+$GUI_Height = 250
 $GUI_X = (@DesktopWidth - $GUI_Width) / 2
 $GUI_Y = (@DesktopHeight - $GUI_Height) / 2
 
@@ -90,11 +90,7 @@ EndFunc
 Func _IsNetworkConnected()
     Local $bConnected = InetGet($TEST_URL_1, "", 1, 1)
     If @error Then
-        ; 根据 @error 的值来判断具体的错误类型
-        ; 例如：
-        If @error = 1 Then
-            MsgBox(0, "Error", "Failed to connect to the server.")
-        EndIf
+        GUICtrlSetData($LabelStatus, "网络连接失败: " & _GetInetErrorDescription(@error))
         Return False
     Else
         Return True
@@ -117,8 +113,10 @@ Func _FixNetwork()
                 $cmd = "ipconfig /renew"
         EndSwitch
 
+        GUICtrlSetData($LabelStatus, "正在执行命令: " & $cmd)
         RunWait(@ComSpec & " /c " & $cmd, "", @SW_HIDE)
         GUICtrlSetData($Progress, $i * 25) ; 更新进度条
+        Sleep(1000) ; 添加延迟以便用户可以看到进度
     Next
     Return True
 EndFunc
@@ -152,4 +150,49 @@ Func _CheckProxyAndWarn()
         GUICtrlSetData($LabelStatus, "网络连接失败，请检查网络设置!")
         _UpdateProxyStatus()
     EndIf
+EndFunc
+
+Func _GetInetErrorDescription($iError)
+    Switch $iError
+        Case 1
+            Return "无法连接到服务器。"
+        Case 2
+            Return "无法打开文件。"
+        Case 3
+            Return "无法写入文件。"
+        Case 4
+            Return "超时。"
+        Case 5
+            Return "无效的 URL。"
+        Case 6
+            Return "无法找到主机。"
+        Case 7
+            Return "无法连接到服务器。"
+        Case 8
+            Return "无法读取数据。"
+        Case 9
+            Return "无法写入数据。"
+        Case 10
+            Return "无法打开文件。"
+        Case 11
+            Return "无法写入文件。"
+        Case 12
+            Return "无法读取数据。"
+        Case 13
+            Return "无法写入数据。"
+        Case 14
+            Return "无法连接到服务器。"
+        Case 15
+            Return "无法读取数据。"
+        Case 16
+            Return "无法写入数据。"
+        Case 17
+            Return "无法连接到服务器。"
+        Case 18
+            Return "无法读取数据。"
+        Case 19
+            Return "无法写入数据。"
+        Case Else
+            Return "未知错误 (" & $iError & ")"
+    EndSwitch
 EndFunc
