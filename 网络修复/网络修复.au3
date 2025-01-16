@@ -1,3 +1,4 @@
+#RequireAdmin ; 请求管理员权限
 #AutoIt3Wrapper_UseUpx=n
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
