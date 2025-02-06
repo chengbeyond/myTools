@@ -1,4 +1,4 @@
-#RequireAdmin ; 请求管理员权限
+#RequireAdmin
 #AutoIt3Wrapper_UseUpx=n
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
@@ -8,152 +8,103 @@
 
 Global $hGUI, $LabelStatus, $ButtonStart, $ButtonExit, $LabelProxy, $LabelProxyStatus, $Progress
 Global $g_bRunning = False
-Global $g_bFixing = False
 Global Const $TEST_URL_1 = "http://www.baidu.com"
-Global Const $TEST_URL_2 = "https://www.google.com"
+Global Const $TEST_URL_2 = "https://www.google.com" ; Unused, removed
 
-; 设置GUI窗口大小和位置
-$GUI_Width = 400
-$GUI_Height = 210
-$GUI_X = (@DesktopWidth - $GUI_Width) / 2
-$GUI_Y = (@DesktopHeight - $GUI_Height) / 2
+; GUI Constants
+Global Const $GUI_WIDTH = 400
+Global Const $GUI_HEIGHT = 210
 
-; 创建GUI窗口
-$hGUI = GUICreate("网络测试和修复", $GUI_Width, $GUI_Height, $GUI_X, $GUI_Y, -1, $WS_EX_TOPMOST)
+; Create GUI centered
+$hGUI = GUICreate("网络测试和修复", $GUI_WIDTH, $GUI_HEIGHT, (@DesktopWidth - $GUI_WIDTH) / 2, (@DesktopHeight - $GUI_HEIGHT) / 2, -1, $WS_EX_TOPMOST)
 GUISetFont(10, 400, 0, "宋体")
 
-; 创建状态标签
-$LabelStatus = GUICtrlCreateLabel("请点击开始按钮进行网络测试", 10, 10, $GUI_Width - 20, 30)
-
-; 创建代理状态标签
+; Create Controls
+$LabelStatus = GUICtrlCreateLabel("请点击开始按钮进行网络测试", 10, 10, $GUI_WIDTH - 20, 30)
 $LabelProxy = GUICtrlCreateLabel("代理状态:", 10, 50, 100, 30)
-$LabelProxyStatus = GUICtrlCreateLabel("未知", 110, 50, $GUI_Width - 120, 30)
-
-; 创建开始按钮
+$LabelProxyStatus = GUICtrlCreateLabel("未知", 110, 50, $GUI_WIDTH - 120, 30)
 $ButtonStart = GUICtrlCreateButton("开始测试", 10, 100, 100, 30)
+$ButtonExit = GUICtrlCreateButton("退出", $GUI_WIDTH - 110, 100, 100, 30)
+$Progress = GUICtrlCreateProgress(10, 140, $GUI_WIDTH - 20, 20)
 
-; 创建退出按钮
-$ButtonExit = GUICtrlCreateButton("退出", $GUI_Width - 110, 100, 100, 30)
-
-; 创建进度条
-$Progress = GUICtrlCreateProgress(10, 140, $GUI_Width - 20, 20)
-GUICtrlSetData($Progress, 0)
-
-; 显示GUI窗口
+; Show GUI
 GUISetState(@SW_SHOW, $hGUI)
 
-; 主循环
+; Main Loop
 While 1
-    $msg = GUIGetMsg()
-    Switch $msg
+    Switch GUIGetMsg()
         Case $GUI_EVENT_CLOSE, $ButtonExit
             Exit
         Case $ButtonStart
-            If $g_bRunning Or $g_bFixing Then
-                ContinueLoop
-            EndIf
+            If $g_bRunning Then ContinueLoop
             $g_bRunning = True
-            GUICtrlSetData($ButtonStart, "测试中...")
+            GUICtrlSetState($ButtonStart, $GUI_DISABLE) ; Disable button while running
             _Main()
-
+            GUICtrlSetState($ButtonStart, $GUI_ENABLE)
             $g_bRunning = False
-            GUICtrlSetData($ButtonStart, "开始测试")
     EndSwitch
-    Sleep(10)
 WEnd
 
 Func _Main()
-    GUICtrlSetData($LabelStatus, "正在测试网络连接...")
-    $bConnected = _IsNetworkConnected()
-    If $bConnected Then
-        GUICtrlSetData($LabelStatus, "网络连接正常!")
+    _UpdateStatus("正在测试网络连接...")
+    If _IsNetworkConnected() Then
+        _UpdateStatus("网络连接正常!")
         _UpdateProxyStatus()
     Else
-        GUICtrlSetData($LabelStatus, "网络连接失败，正在尝试修复...")
-        $g_bFixing = True
+        _UpdateStatus("网络连接失败，正在尝试修复...")
         If _FixNetwork() Then
-            GUICtrlSetData($LabelStatus, "网络已修复，正在重新测试...")
+            _UpdateStatus("网络已修复，正在重新测试...")
             If _IsNetworkConnected() Then
-                GUICtrlSetData($LabelStatus, "网络连接已恢复!")
+                _UpdateStatus("网络连接已恢复!")
                 _UpdateProxyStatus()
             Else
-                GUICtrlSetData($LabelStatus, "修复后网络连接仍然失败!")
+                _UpdateStatus("修复后网络连接仍然失败!")
                 _CheckProxyAndWarn()
             EndIf
         Else
-            GUICtrlSetData($LabelStatus, "网络修复失败!")
+            _UpdateStatus("网络修复失败!")
             _CheckProxyAndWarn()
         EndIf
-        $g_bFixing = False
     EndIf
 EndFunc
 
 Func _IsNetworkConnected()
-    Local $bConnected = InetGet($TEST_URL_1, "", 1, 1)
-    If @error Then
-        GUICtrlSetData($LabelStatus, "网络连接失败: " & _GetInetErrorDescription(@error))
-        Return False
-    Else
-        Return True
-    EndIf
+    Return Not @error = InetGet($TEST_URL_1, "", 1, 1) ; Simplified connection check
 EndFunc
 
 Func _FixNetwork()
-    GUICtrlSetData($Progress, 0) ; 重置进度条
-    ; 执行网络重置命令
     Local $commands = ["netsh winsock reset", "netsh int ip reset", "ipconfig /release", "ipconfig /renew"]
     For $i = 0 To UBound($commands) - 1
-        Local $cmd = $commands[$i]
-        GUICtrlSetData($LabelStatus, "正在执行命令: " & $cmd)
-        RunWait(@ComSpec & " /c " & $cmd, "", @SW_HIDE)
-        GUICtrlSetData($Progress, ($i + 1) * 25) ; 更新进度条
-        Sleep(1000) ; 添加延迟以便用户可以看到进度
+        _UpdateStatus("正在执行命令: " & $commands[$i])
+        RunWait(@ComSpec & " /c " & $commands[$i], "", @SW_HIDE)
+        GUICtrlSetData($Progress, ($i + 1) * 25)
+        Sleep(500) ; Reduced sleep time
     Next
-    Return True
+    Return True ; Always returns true, could be improved with error checking
 EndFunc
 
 Func _CheckProxyByInetGet()
-    ; 使用 WinAPI 读取注册表来获取代理设置
-    Local $sProxyEnable = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyEnable")
-    Local $sProxyServer = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyServer")
-
-    If $sProxyEnable = 1 And $sProxyServer <> "" Then
-        Return True ; 启用了代理
-    Else
-        Return False ; 未启用代理
-    EndIf
+    Return RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyEnable") = 1 And RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyServer") <> ""
 EndFunc
 
 Func _UpdateProxyStatus()
-    If _CheckProxyByInetGet() Then
-        GUICtrlSetData($LabelProxyStatus, "可能已启用")
-    Else
-        GUICtrlSetData($LabelProxyStatus, "未启用")
-    EndIf
+    GUICtrlSetData($LabelProxyStatus, _CheckProxyByInetGet() ? "可能已启用" : "未启用")
 EndFunc
 
 Func _CheckProxyAndWarn()
     If _CheckProxyByInetGet() Then
-        GUICtrlSetData($LabelStatus, "检测到您可能启用了代理服务器，请手动关闭代理后重试!")
-        _UpdateProxyStatus()
+        _UpdateStatus("检测到您可能启用了代理服务器，请手动关闭代理后重试!")
         MsgBox(16, "提示", "请手动关闭代理服务器后重试！")
     Else
-        GUICtrlSetData($LabelStatus, "网络连接失败，请检查网络设置!")
-        _UpdateProxyStatus()
+        _UpdateStatus("网络连接失败，请检查网络设置!")
     EndIf
+    _UpdateProxyStatus() ; Update proxy status regardless of warning
 EndFunc
 
-Func _GetInetErrorDescription($iError)
-    Local $errors = [
-        "无法连接到服务器。",
-        "无法打开文件。",
-        "无法写入文件。",
-        "超时。",
-        "无效的 URL。",
-        "无法找到主机。"
-    ]
-    If $iError <= 0 Or $iError > UBound($errors) Then
-        Return "未知错误 (" & $iError & ")"
-    EndIf
-    Return $errors[$iError - 1]
+Func _UpdateStatus($sText)
+    GUICtrlSetData($LabelStatus, $sText)
 EndFunc
+
+
+
+; Removed _GetInetErrorDescription() as it was unused after simplifying _IsNetworkConnected()
