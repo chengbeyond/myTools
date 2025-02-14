@@ -1,0 +1,1 @@
+pyinstaller --onefile --noconsole --icon=SkinBox.ico get_name2.py
