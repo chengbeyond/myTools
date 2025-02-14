@@ -12,6 +12,8 @@ bin-release/
 .tcl
 .build
 .dist
+dist
+build
 
 
 # Executables
